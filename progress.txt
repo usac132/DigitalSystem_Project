@@ -6,6 +6,7 @@
 11/27
   한 일
   - input_trim 구현 및 시뮬레이션 확인 완료
+  - level_select 구현 및 시뮬레이션 확인 완료 (error code는 아직 작업 안함, 필요 없으면 그냥 제거해도 무방)
 
   해야할 일
   - pattern generator 코드 구현 고민 시작 but FPGA보드 사용법 익히는게 더 관건일듯함.

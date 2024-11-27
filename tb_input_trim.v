@@ -87,7 +87,7 @@ module input_trim_tb;
         botton_7 = 0;
         botton_8 = 0;
 
-        // 리셋 비활성화
+        // 리셋 활성화
         #20;
         rst = 0;
         #20;
