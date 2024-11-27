@@ -1,11 +1,48 @@
 module GameManager(
-
+    input clk_1,
+    // input clk_2,
+    input rst,
+    // input enable,
+    input botton_1, // 입력 버튼
+    input botton_2,
+    input botton_3,
+    input botton_4,
+    input botton_5,
+    input botton_6,
+    input botton_7,
+    input botton_8,
+    input keypad_1,
+    input keypad_2,
+    input keypad_3,
+    input keypad_0,
+    output led_1,
+    output led_2,
+    output led_3,
+    output led_4,
+    output led_5,
+    output led_6,
+    output led_7,
+    output led_8,
+    // output 7-seg 관련 요소들
+    output [3:0] error_code
 );
 // 전체 모듈 통합하고 게임의 주축이 되는 모듈.
 // 다른 모듈들을 이용해 이 모듈에서 전체 게임 설계.
 
-
 // level_select 모듈로 시작 -> 유효값이 입력 되었을 때 다른 모듈에 enable 신호 넣어줌
+wire [2:0] level;
+level_select level_select(
+    .clk(clk),
+    // .enable
+    .keypad_1(keypad_1),
+    .keypad_2(keypad_2),
+    .keypad_3(keypad_3),
+    .keypad_0(keypad_0),
+    .error_code(error_code),
+    .level(level)
+)
+// level 1: 001, level 2: 010, level 3: 100, not_valid: 000,  
+
 
 
 // 입력받아온 level을 디코더에 넣어 아래 3가지 중에서 작동하도록 설계
@@ -16,7 +53,6 @@ module GameManager(
 
 
 // level_mid
-
 
 
 // level_high
