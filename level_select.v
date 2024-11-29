@@ -1,18 +1,14 @@
 module level_select(
     input clk,
-    // input enable,
     input keypad_1,
     input keypad_2,
     input keypad_3,
     input keypad_0,
-    output [3:0] error_code,
+    // output [3:0] error_code,
     output reg [2:0] level,
     output reg rst,
     output reg end_signal
 );
-    reg k1 = 0;
-    reg k2 = 0;
-    reg k3 = 0;
     always @(posedge keypad_1) k1 <= 1'b1;
     always @(posedge keypad_2) k2 <= 1'b1;
     always @(posedge keypad_3) k3 <= 1'b1;
