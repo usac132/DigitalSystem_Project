@@ -1,6 +1,7 @@
 module GameManager(
     input clk_1,
-    input clk_2,
+    input clk_2,    // 랜덤값 생성용
+    input clk_3,    // delay 생성용
     input botton_1, // 입력 버튼
     input botton_2,
     input botton_3,

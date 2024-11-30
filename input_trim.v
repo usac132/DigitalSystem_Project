@@ -2,7 +2,7 @@ module input_trim(
     input clk,  //빠른 clk사용
     input rst,
     // input enable,
-    input [1:0] level,
+    input [2:0] level,
     input botton_1, // 입력 버튼
     input botton_2,
     input botton_3,
@@ -27,15 +27,15 @@ module input_trim(
     output reg [2:0] trimmed_inp_14,
     output reg [2:0] trimmed_inp_15,
     output reg [2:0] trimmed_inp_16,
-    output reg end_signal,
-    output reg [3:0] error_code
+    output reg end_signal
+    // output reg [3:0] error_code
     // 난이도 선택 모듈에서 정해진 개수만큼만 뽑아가고 나머지는 초기화 하는 방식으로 모듈 설계 예정 
 );
     // 버튼이 '눌렸을 때' 값을 저장. 눌려있거나 안눌려 있을 때에는 무시
     reg b1, b2, b3, b4, b5, b6, b7, b8;
     reg [4:0] i; // 입력 개수
-    wire [3:0] MAX; // level에 따른 최대 입력 개수
-    assign MAX = 4 + 4 * level - 1; // level은 1,2,3만 있음.
+    wire [3:0] max; // level에 따른 최대 입력 개수
+    assign max = 3 + 12 * level[2] + 8 * level[1]  + 4 * level[0]; // level은 1,2,3만 있음.
 
 
     always @(posedge botton_1) b1 <= 1'b1;
@@ -88,7 +88,7 @@ module input_trim(
             b8 <= 1'b0;
             i <= 5'b00000;
             end_signal <= 1'b0;
-            error_code <= 4'b0000;
+            // error_code <= 4'b0000;
         end else begin
             if (verify) begin   //encoder
                 case({b1, b2, b3, b4, b5, b6, b7, b8})
@@ -124,9 +124,9 @@ module input_trim(
                         tmp_trim <= 0; 
                         b1 <= 0; 
                     end
-                    default: error_code <= 4'b0001;     // error_code 0001
+                    // default: error_code <= 4'b0001;     // error_code 0001
                 endcase
-                if (i <= MAX) begin
+                if (i <= max) begin
                     i <= i + 1;
                     load <= 1;
                 end
@@ -135,7 +135,7 @@ module input_trim(
                 load <= 0;
             end
 
-            if (i > MAX) begin
+            if (i > max) begin
                 end_signal <= 1;
             end
 
@@ -157,7 +157,7 @@ module input_trim(
                     4'b1101: trimmed_inp_14 <= tmp_trim;
                     4'b1110: trimmed_inp_15 <= tmp_trim;
                     4'b1111: trimmed_inp_16 <= tmp_trim;
-                    default: error_code <= 4'b0010;
+                    // default: error_code <= 4'b0010;
                 endcase
             end
         end

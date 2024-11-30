@@ -9,6 +9,7 @@ module level_select(
     output reg rst,
     output reg end_signal
 );
+    reg k1, k2, k3;
     always @(posedge keypad_1) k1 <= 1'b1;
     always @(posedge keypad_2) k2 <= 1'b1;
     always @(posedge keypad_3) k3 <= 1'b1;

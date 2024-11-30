@@ -4,12 +4,14 @@
   - BluePrint 작성
 
 11/27
-  한 일
   - input_trim 구현 및 시뮬레이션 확인 완료
   - level_select 구현 및 시뮬레이션 확인 완료 (error code는 아직 작업 안함, 필요 없으면 그냥 제거해도 무방)
 
-  해야할 일
-  - pattern generator 코드 구현 고민 시작 but FPGA보드 사용법 익히는게 더 관건일듯함.
-  - GM 작성 시작.
+11/30
+  - pattern generator 코드 구현
+  - 변수형 잘못됐던 것들 수정
+  - enable 구현
+
+해야할 일
   - pattern display 모듈 구현 -- 시간 간격을 어떻게 구현할지가 관건(필터도 마찬가지). 얘도 클럭속도 확인하면서 해야할듯함.
 
