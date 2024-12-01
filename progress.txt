@@ -11,7 +11,8 @@
   - pattern generator 코드 구현
   - 변수형 잘못됐던 것들 수정
   - enable 구현
+  - print_pattern 모듈 구현
 
 해야할 일
-  - pattern display 모듈 구현 -- 시간 간격을 어떻게 구현할지가 관건(필터도 마찬가지). 얘도 클럭속도 확인하면서 해야할듯함.
+  - round 구현 방법에 대해 고민
 

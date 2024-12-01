@@ -75,19 +75,78 @@ module GameManager(
         .pattern_gen_end(pattern_gen_end)
     );
 
+    wire print_pattern_end;
+    print_pattern print_pattern(
+        .clk_1(clk_1),
+        .clk_3(clk_3),
+        .rst(rst),
+        .enable(pattern_gen_end),
+        .level(level),
+        .pattern_1(pattern_1),
+        .pattern_2(pattern_2),
+        .pattern_3(pattern_3),
+        .pattern_4(pattern_4),
+        .pattern_5(pattern_5),
+        .pattern_6(pattern_6),
+        .pattern_7(pattern_7),
+        .pattern_8(pattern_8),
+        .pattern_9(pattern_9),
+        .pattern_10(pattern_10),
+        .pattern_11(pattern_11),
+        .pattern_12(pattern_12),
+        .pattern_13(pattern_13),
+        .pattern_14(pattern_14),
+        .pattern_15(pattern_15),
+        .pattern_16(pattern_16),
+        .led_1(led_1),
+        .led_2(led_2),
+        .led_3(led_3),
+        .led_4(led_4),
+        .led_5(led_5),
+        .led_6(led_6),
+        .led_7(led_7),
+        .led_8(led_8),
+        .print_pattern_end(print_pattern_end)
+    );
 
+    wire [2:0] trimmed_inp_1, trimmed_inp_2, trimmed_inp_3, trimmed_inp_4, trimmed_inp_5;
+    wire [2:0] trimmed_inp_6, trimmed_inp_7, trimmed_inp_8, trimmed_inp_9, trimmed_inp_10, trimmed_inp_11; 
+    wire [2:0] trimmed_inp_12, trimmed_inp_13, trimmed_inp_14, trimmed_inp_15, trimmed_inp_16;
+    wire input_trim_end;
+    input_trim input_trim(
+        .clk(clk),                  // 빠른 clk 사용
+        .rst(rst),
+        .enable(print_pattern_end),
+        .level(level),
+        .botton_1(botton_1),        // 입력 버튼
+        .botton_2(botton_2),
+        .botton_3(botton_3),
+        .botton_4(botton_4),
+        .botton_5(botton_5),
+        .botton_6(botton_6),
+        .botton_7(botton_7),
+        .botton_8(botton_8),
+        .trimmed_inp_1(trimmed_inp_1),  // (누른 버튼 index) X (개수)
+        .trimmed_inp_2(trimmed_inp_2),  // 내부 값은 0~7이지만 실제 인덱스는 이 값에 1을 더한 값임
+        .trimmed_inp_3(trimmed_inp_3),
+        .trimmed_inp_4(trimmed_inp_4),
+        .trimmed_inp_5(trimmed_inp_5),
+        .trimmed_inp_6(trimmed_inp_6),
+        .trimmed_inp_7(trimmed_inp_7),
+        .trimmed_inp_8(trimmed_inp_8),
+        .trimmed_inp_9(trimmed_inp_9),
+        .trimmed_inp_10(trimmed_inp_10),
+        .trimmed_inp_11(trimmed_inp_11),
+        .trimmed_inp_12(trimmed_inp_12),
+        .trimmed_inp_13(trimmed_inp_13),
+        .trimmed_inp_14(trimmed_inp_14),
+        .trimmed_inp_15(trimmed_inp_15),
+        .trimmed_inp_16(trimmed_inp_16),
+        .end_signal(input_trim_end)
+    );
 
-    // 입력받아온 level을 디코더에 넣어 아래 3가지 중에서 작동하도록 설계
-
-
-    // level_low
-
-
-
-    // level_mid
-
-
-    // level_high
+    // 모듈 앞에 mux 붙이기 -> 같은 모듈 반복해서 사용. rst대신에 loop끝나는 신호 같이 넣어서 초기화 시켜서 반복
+    // loop_num 을 증가시키다가 10이상이 되면 반복 중지하고 score 출력
 
 
 

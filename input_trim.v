@@ -1,7 +1,7 @@
 module input_trim(
     input clk,  //빠른 clk사용
     input rst,
-    // input enable,
+    input enable,
     input [2:0] level,
     input botton_1, // 입력 버튼
     input botton_2,
@@ -53,7 +53,7 @@ module input_trim(
     wire verify, inp_on_signal, not_multi_inp;
     assign inp_on_signal = b1|b2|b3|b4|b5|b6|b7|b8;
     assign not_multi_inp = (b1+b2+b3+b4+b5+b6+b7+b8 < 2);
-    assign verify = inp_on_signal & not_multi_inp & (~end_signal);
+    assign verify = enable & inp_on_signal & not_multi_inp & (~end_signal);
 
     // encoder
     reg [2:0] tmp_trim;
