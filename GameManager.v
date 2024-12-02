@@ -40,9 +40,19 @@ module GameManager(
         // .error_code(error_code),
         .level(level),
         .rst(rst),
-        .end_signal(level_select_end)
+        .end_signal(level_select_end)   // 1값 유지
     );
     // level 1: 001, level 2: 010, level 3: 100, not_valid: 000,  
+
+    reg [4:0] round_count;
+    reg [3:0] answer_count;
+    always @(negedge rst) begin // round rst에 영향X only 전체 rst에서만 영향 받음
+        round_count <= 5'b00000;
+        answer_count <= 4'b0000;
+    end
+
+    reg lrst;   // loop를 초기화할 신호
+    always @(posedge keypad_0) lrst <= 1'b1;
 
     wire lv_sel;
     assign lv_sel = keypad_1 | keypad_2 | keypad_3;
@@ -52,8 +62,8 @@ module GameManager(
     pattern_generator pattern_generator(
         .clk_1(clk_1),
         .clk_2(clk_2),
-        .rst(rst),
-        .enable(level_select_end),
+        .rst(rst & lrst),
+        .enable(level_select_end & lpge),  ////////################### 2번째 패턴부터 어떻게 enable 신호를>?  =>  그냥 loop끝낚을때 신호를 이용할까>  => 초기가 랜덤인 이상 그 다음 패턴들도 랜덤일거야
         .keypad_0(keypad_0),
         .lv_sel(lv_sel),
         .pattern_1(pattern_1),
@@ -72,14 +82,14 @@ module GameManager(
         .pattern_14(pattern_14),
         .pattern_15(pattern_15),
         .pattern_16(pattern_16),
-        .pattern_gen_end(pattern_gen_end)
+        .pattern_gen_end(pattern_gen_end)   // rst신호때 0됐다가 데이터 업데이트 될 때 
     );
 
     wire print_pattern_end;
     print_pattern print_pattern(
         .clk_1(clk_1),
         .clk_3(clk_3),
-        .rst(rst),
+        .rst(rst & lrst),
         .enable(pattern_gen_end),
         .level(level),
         .pattern_1(pattern_1),
@@ -115,7 +125,7 @@ module GameManager(
     wire input_trim_end;
     input_trim input_trim(
         .clk(clk),                  // 빠른 clk 사용
-        .rst(rst),
+        .rst(rst & lrst),
         .enable(print_pattern_end),
         .level(level),
         .botton_1(botton_1),        // 입력 버튼
@@ -142,8 +152,80 @@ module GameManager(
         .trimmed_inp_14(trimmed_inp_14),
         .trimmed_inp_15(trimmed_inp_15),
         .trimmed_inp_16(trimmed_inp_16),
-        .end_signal(input_trim_end)
+        .end_signal(input_trim_end) //끝나면 계속 유지
     );
+    wire round_win; 
+    assign round_win =  (pattern_1 == trimmed_inp_1) &
+                        (pattern_2 == trimmed_inp_2) &
+                        (pattern_3 == trimmed_inp_3) &
+                        (pattern_4 == trimmed_inp_4) &
+                        (pattern_5 == trimmed_inp_5) &
+                        (pattern_6 == trimmed_inp_6) &
+                        (pattern_7 == trimmed_inp_7) &
+                        (pattern_8 == trimmed_inp_8) &
+                        (pattern_9 == trimmed_inp_9) &
+                        (pattern_10 == trimmed_inp_10) &
+                        (pattern_11 == trimmed_inp_11) &
+                        (pattern_12 == trimmed_inp_12) &
+                        (pattern_13 == trimmed_inp_13) &
+                        (pattern_14 == trimmed_inp_14) &
+                        (pattern_15 == trimmed_inp_15) &
+                        (pattern_16 == trimmed_inp_16);
+    reg [1:0] delay;
+    always @(negedge rst or posedge input_trim_end) begin   // 초기화 + loop 끝났을 때 초기화
+        delay <= 2'b00;
+        i <= 4'b0000;
+    end
+
+
+    reg [1:0] delay_pge;    // delay for pattern generate enable
+    reg lpge;
+    always @(posedge keypad_0) lpge <= 1;
+    always @(negedge rst or posedge input_trim_end) delay_pge <= 2'b00;
+    always @(posedge lrst) begin
+        lpge <= 0;
+        delay_peg <= 2'b01;
+    end
+    always @(posedge clk_1) begin
+         ((delay_pge != 2'b00) & (delay_pge != 2'b11) ) delay_pge <= delay_pge + 1;
+        else if (delay_pge == 2'b11) lpge <= 1'b1; // 아래거 복사해서 delay 만듦
+    end
+
+    //  trimmed_input이 값이 업데이트 되게 하기 위해 딜레이를 줌
+    reg [1:0] delay_lrst;
+    always @(negedge rst posedge input_trim_end) delay_lrst <= 2'b00;
+    always @(posedge clk_1) begin   // 그냥 lrst를 일정시간 0으로 붙잡기 위한 부분
+        if ((delay_lrst != 2'b00) & (delay_lrst != 2'b11) ) delay_lrst <= delay_lrst + 1;
+        else if (delay_lrst == 2'b11) lrst <= 1'b1;     // 딜레이 후 lrst 정상화
+    end
+
+    reg activate_lrst;
+    always @(negedge rst) activate_lrst <= 0;
+
+    always @(posedge clk_1) begin
+        if (activate_lrst & (!game_end)) begin
+            lrst <= 1'b0;
+            activate_lrst <= 1'b0;
+        end
+        if (delay == 2'b11 & input_trim_end) begin
+            round_count <= round_count + 1;
+            answer_count <= answer_count + round_win;
+            activate_lrst <= 1'b0;
+            delay_lrst <= 2'b01;
+        end
+        else if (input_trim_end) delay <= delay + 1;
+    end
+
+
+    wire game_end;
+    assign game_end = round_count[4]
+
+/*
+    always @(posedge input_trim_end) begin
+        delay <= 1;
+        rst <= 0;
+    end
+*/
 
     // 모듈 앞에 mux 붙이기 -> 같은 모듈 반복해서 사용. rst대신에 loop끝나는 신호 같이 넣어서 초기화 시켜서 반복
     // loop_num 을 증가시키다가 10이상이 되면 반복 중지하고 score 출력
