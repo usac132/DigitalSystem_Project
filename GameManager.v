@@ -10,10 +10,14 @@ module GameManager(
     input botton_6,
     input botton_7,
     input botton_8,
+    input [2:0] KEY_COL,
+    input [3:0] KEY_ROW,
+    /*
     input keypad_1,
     input keypad_2,
     input keypad_3,
     input keypad_0,
+    */
     output led_1,
     output led_2,
     output led_3,
@@ -29,7 +33,10 @@ module GameManager(
 );
     // 전체 모듈 통합하고 게임의 주축이 되는 모듈.
     // 다른 모듈들을 이용해 이 모듈에서 전체 게임 설계.
-
+    assign keypad_1 = KEY_COL[0] & KEY_ROW[0];
+    assign keypad_2 = KEY_COL[1] & KEY_ROW[0];
+    assign keypad_3 = KEY_COL[2] & KEY_ROW[0];
+    assign keypad_0 = KEY_COL[1] & KEY_ROW[3];
     // level_select 모듈로 시작 -> 유효값이 입력 되었을 때 다른 모듈에 enable 신호 넣어줌
     wire [2:0] level;
     wire rst, level_select_end;
