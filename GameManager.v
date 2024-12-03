@@ -1,4 +1,4 @@
-module GameManager(
+module GameManagerX(
     input clk_1,
     input clk_2,    // 랜덤값 생성용
     input clk_3,    // delay 생성용
