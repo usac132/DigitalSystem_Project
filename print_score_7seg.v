@@ -40,10 +40,11 @@ module print_score_7seg (
     // 일의 자리는 항상 0으로 고정된 7-segment 데이터
     assign seg_units = 7'b1111110; // 숫자 "0"의 7-segment 데이터
 
+    assign SEG_COM = 8'00011111; 
+    assign SEG_DATA = {}
+
     // 7-segment 컨트롤러
     SevenSeg_CTRL seven_seg_ctrl (
-        .iCLK(clk),
-        .nRST(nRST),
         .iSEG7(8'b0), .iSEG6(8'b0), .iSEG5(8'b0), .iSEG4(8'b0), // 미사용
         .iSEG3({seg_hundreds, 1'b0}),  // 백의 자리
         .iSEG2({seg_tens, 1'b0}),      // 십의 자리

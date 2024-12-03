@@ -27,7 +27,7 @@ module GameManager(
     output led_5,
     output led_6,
     output led_7,
-    output led_8_s,             ////////sim
+    output led_8_s             ////////sim
     // output 7-seg 관련 요소들
     // output [7:0] SEG_COM,
     // output [7:0] SEG_DATA
@@ -305,7 +305,7 @@ ClK_initialize ClK_initialize(
         else if (game_end)
             score <= 10 * answer_count;
     end
-    
+    /*
     // 점수 출력 모듈 인스턴스화
     print_score_7seg print_score_inst (
         .score(score),  
@@ -314,7 +314,7 @@ ClK_initialize ClK_initialize(
         .SEG_COM(SEG_COM),
         .SEG_DATA(SEG_DATA)
     );
-    
+    */
     assign led_8_s = led_8 | game_end;
     // 추가 로직 및 주석
     // ... (생략)

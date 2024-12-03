@@ -1,6 +1,4 @@
 module SevenSeg_CTRL(
-	iCLK,
-	nRST,
 	iSEG7,
 	iSEG6,
 	iSEG5,
@@ -29,69 +27,9 @@ integer CNT_SCAN;
    [d]   [dp]
 */
 
-always @(posedge iCLK)
-begin
-	if (!nRST)
-	  begin
-		oS_COM <= 8'b00000000;
-		oS_ENS <= 0;
-	    CNT_SCAN = 0;
-	  end
-	else
-	  begin
-	  	if (CNT_SCAN >= 7)
-	  	  CNT_SCAN <= 0;
-	  	else
-	  	  CNT_SCAN <= CNT_SCAN + 1;
-	  	  	  	
-	  	case (CNT_SCAN)
-	  	  0 : 
-	  	    begin
-				oS_COM <= 8'b11111110;
-				oS_ENS <= iSEG0;
-	  	    end
-	  	  1 : 
-	  	    begin
-				oS_COM <= 8'b11111101;
-				oS_ENS <= iSEG1;
-	  	    end
-	  	  2 : 
-	  	    begin
-				oS_COM <= 8'b11111011;
-				oS_ENS <= iSEG2;
-	  	    end
-	  	  3 : 
-	  	    begin
-				oS_COM <= 8'b11110111;
-				oS_ENS <= iSEG3;
-	  	    end
-	  	  4 : 
-	  	    begin
-				oS_COM <= 8'b11101111;
-				oS_ENS <= iSEG4;
-	  	    end
-	  	  5 : 
-	  	    begin
-				oS_COM <= 8'b11011111;
-				oS_ENS <= iSEG5;
-	  	    end
-	  	  6 : 
-	  	    begin
-				oS_COM <= 8'b10111111;
-				oS_ENS <= iSEG6;
-	  	    end
-	  	  7 : 
-	  	    begin
-				oS_COM <= 8'b01111111;
-				oS_ENS <= iSEG7;
-	  	    end			 
-	  	  default : 
-	  	    begin
-	  	      oS_COM <= 8'b11111111;
-				oS_ENS <= iSEG7;
-	  	    end
-	  	endcase
-      end
-end
+
+	assign oS_COM = 8'b00011111;
+	oS_ENS = 0;
+
 
 endmodule 
