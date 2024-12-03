@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 
 module GameManager(
-    input clk_1,
+    // input clk_1,
     input clk_2,    // 랜덤값 생성용
-    input clk_3,    // delay 생성용
+    // input clk_3,    // delay 생성용
     input botton_1, // 입력 버튼
     input botton_2,
     input botton_3,
@@ -33,6 +33,11 @@ module GameManager(
     output [7:0] SEG_DATA
     // output [3:0] error_code
 );
+ClK_initialize ClK_initialize(
+    .clk_in(clk_2),      // 1MHz 입력 클록
+    .clk_1kHz(clk_1),    // 1kHz 출력 클록
+    .clk_10Hz(clk_3)     // 10Hz 출력 클록
+    );
     // 키패드 신호 할당
     wire keypad_1, keypad_2, keypad_3, keypad_0;
     assign keypad_1 = KEY_COL[0] & KEY_ROW[0];
