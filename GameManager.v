@@ -23,6 +23,8 @@ module GameManager(
     output led_7,
     output led_8
     // output 7-seg 관련 요소들
+    output [7:0] SEG_COM
+    output [7:0] SEG_DATA
     // output [3:0] error_code
 );
     // 전체 모듈 통합하고 게임의 주축이 되는 모듈.
@@ -43,6 +45,9 @@ module GameManager(
         .end_signal(level_select_end)   // 1값 유지
     );
     // level 1: 001, level 2: 010, level 3: 100, not_valid: 000,  
+
+    reg [15:0] pattern_lv_enable;
+    always @(negedge rst) pattern_lv_enable <=16'b0000000000000000;
 
     reg [4:0] round_count;
     reg [3:0] answer_count;
@@ -161,22 +166,31 @@ module GameManager(
         .end_signal(input_trim_end) //끝나면 계속 유지
     );
     wire round_win; 
-    assign round_win =  (pattern_1 == trimmed_inp_1) &
-                        (pattern_2 == trimmed_inp_2) &
-                        (pattern_3 == trimmed_inp_3) &
-                        (pattern_4 == trimmed_inp_4) &
-                        (pattern_5 == trimmed_inp_5) &
-                        (pattern_6 == trimmed_inp_6) &
-                        (pattern_7 == trimmed_inp_7) &
-                        (pattern_8 == trimmed_inp_8) &
-                        (pattern_9 == trimmed_inp_9) &
-                        (pattern_10 == trimmed_inp_10) &
-                        (pattern_11 == trimmed_inp_11) &
-                        (pattern_12 == trimmed_inp_12) &
-                        (pattern_13 == trimmed_inp_13) &
-                        (pattern_14 == trimmed_inp_14) &
-                        (pattern_15 == trimmed_inp_15) &
-                        (pattern_16 == trimmed_inp_16);
+    assign round_win =  ((pattern_1 & {3{pattern_lv_enable[0]}}) == trimmed_inp_1) &
+                        ((pattern_2 & {3{pattern_lv_enable[1]}}) == trimmed_inp_2) &
+                        ((pattern_3 & {3{pattern_lv_enable[2]}}) == trimmed_inp_3) &
+                        ((pattern_4 & {3{pattern_lv_enable[3]}}) == trimmed_inp_4) &
+                        ((pattern_5 & {3{pattern_lv_enable[4]}}) == trimmed_inp_5) &
+                        ((pattern_6 & {3{pattern_lv_enable[5]}}) == trimmed_inp_6) &
+                        ((pattern_7 & {3{pattern_lv_enable[6]}}) == trimmed_inp_7) &
+                        ((pattern_8 & {3{pattern_lv_enable[7]}}) == trimmed_inp_8) &
+                        ((pattern_9 & {3{pattern_lv_enable[8]}}) == trimmed_inp_9) &
+                        ((pattern_10 & {3{pattern_lv_enable[9]}}) == trimmed_inp_10) &
+                        ((pattern_11 & {3{pattern_lv_enable[10]}}) == trimmed_inp_11) &
+                        ((pattern_12 & {3{pattern_lv_enable[11]}}) == trimmed_inp_12) &
+                        ((pattern_13 & {3{pattern_lv_enable[12]}}) == trimmed_inp_13) &
+                        ((pattern_14 & {3{pattern_lv_enable[13]}}) == trimmed_inp_14) &
+                        ((pattern_15 & {3{pattern_lv_enable[14]}}) == trimmed_inp_15) &
+                        ((pattern_16 & {3{pattern_lv_enable[15]}}) == trimmed_inp_16);
+
+    always @(posedge pattern_gen_end) begin
+        case (level)
+            3'b001: pattern_lv_enable <= 16'b0000000011111111;
+            3'b010: pattern_lv_enable <= 16'b0000111111111111;
+            3'b100: pattern_lv_enable <= 16'b1111111111111111;
+        endcase
+    end
+
     reg [1:0] delay;
     always @(negedge rst or posedge input_trim_end) begin   // 초기화 + loop 끝났을 때 초기화
         delay <= 2'b00;
@@ -220,7 +234,19 @@ module GameManager(
         else if ((delay != 2'b11) & input_trim_end) delay <= delay + 1;
     end
 
+    reg [6:0] score;
+    always @(posedge game_end or negedge rst) begin
+        if (!rst) score <= 0;
+        else score <= 10 * answer_count;
+    end
 
+    print_score_7seg print_score_7seg(
+        .score(score),  
+        .clk(clk_1),          
+        .nRST(rst),           
+        .SEG_COM(SEG_COM),
+        .SEG_DATA(SEG_DATA)
+);
 
     // n개의 값을 입력해야 한다고 할 때 n개의 값을 입력 했을 때 한 round가 끝나도록 설계.
     // round와 round 사이에 term을 주는 것도 구현 필요.
