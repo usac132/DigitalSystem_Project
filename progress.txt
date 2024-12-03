@@ -13,6 +13,6 @@
   - enable 구현
   - print_pattern 모듈 구현
 
-해야할 일
-  - round 구현 방법에 대해 고민
+12/3
+  - GM 코드 구현
 

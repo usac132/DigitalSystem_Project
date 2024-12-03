@@ -30,21 +30,22 @@ module print_pattern(
     output reg led_8,
     output reg print_pattern_end
 );
-    wire clk_x2, clk_x4, clk_x8, clk_x16;   // 0.2초, 0.4초, 0.8초, 1.6초
+    wire clk_x2, clk_x4, clk_x8, clk_x16, clk_x32;   // 반 주기: 0.1초, 0.2초, 0.4초, 0.8초, 1.6초
     clk_divider clk_divider(
         .clk(clk_3),
         .rst(enable),
         .Tx2(clk_x2),
         .Tx4(clk_x4),
         .Tx8(clk_x8),
-        .Tx16(clk_x16)
+        .Tx16(clk_x16),
+        .Tx32(clk_x32)
     );
     
     wire [3:0] max;
     assign max = 3 + 12 * level[2] + 8 * level[1]  + 4 * level[0];
 
     wire clk;
-    assign clk = ((clk_x4 & level[2]) | (clk_x8 & level[1]) | (clk_x16 & level[0])) & enable;
+    assign clk = ((clk_x8 & level[2]) | (clk_x16 & level[1]) | (clk_x32 & level[0])) & enable;
     reg [2:0] pattern [15:0];
     always @(posedge clk_1) begin
         if (enable) begin
@@ -68,6 +69,7 @@ module print_pattern(
     end
     reg pulse;
     reg [4:0] i;
+    reg [1:0] delay_enable;
     always @(posedge clk or negedge rst) begin
         if (!rst) begin // 초기화
             pulse <= 0;
@@ -96,8 +98,9 @@ module print_pattern(
             led_6 <= 0;
             led_7 <= 0;
             led_8 <= 0;
+            delay_enable <= 2'b00;
             print_pattern_end <= 0;
-        end else if (enable & pulse & (i <= max)) begin    // led 신호가 출력
+        end else if ((delay_enable == 2'b11) & pulse & (i <= max)) begin    // led 신호가 출력
             case (pattern[i])
                 3'b000: led_1 <= 1;
                 3'b001: led_2 <= 1;
@@ -111,7 +114,7 @@ module print_pattern(
             endcase
             pulse <= 0;
             i <= i + 1;
-        end else if (enable & (~pulse) & (i <= max)) begin     // led 신호 사이의 간격
+        end else if ((delay_enable == 2'b11) & (~pulse) & (i <= max)) begin     // led 신호 사이의 간격
             led_1 <= 0;
             led_2 <= 0;
             led_3 <= 0;
@@ -121,7 +124,7 @@ module print_pattern(
             led_7 <= 0;
             led_8 <= 0;
             pulse <= 1;
-        end else if (enable)begin  // 모든 패턴 출력 끝났을 때
+        end else if ((delay_enable == 2'b11))begin  // 모든 패턴 출력 끝났을 때
             led_1 <= 0;
             led_2 <= 0;
             led_3 <= 0;
@@ -131,6 +134,6 @@ module print_pattern(
             led_7 <= 0;
             led_8 <= 0;
             print_pattern_end <= 1;
-        end
+        end else if ((delay_enable != 2'b11) & enable) delay_enable <= delay_enable + 1;
     end
 endmodule
