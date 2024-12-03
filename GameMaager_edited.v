@@ -27,12 +27,15 @@ module GameManager(
     output led_5,
     output led_6,
     output led_7,
-    output led_8,
+    output led_8_s,             ////////sim
     // output 7-seg 관련 요소들
-    output [7:0] SEG_COM,
-    output [7:0] SEG_DATA
+    // output [7:0] SEG_COM,
+    // output [7:0] SEG_DATA
     // output [3:0] error_code
 );
+wire led_8;   /////////////////////////////////////////////sim
+
+wire clk_1, clk_3;
 ClK_initialize ClK_initialize(
     .clk_in(clk_2),      // 1MHz 입력 클록
     .clk_1kHz(clk_1),    // 1kHz 출력 클록
@@ -312,6 +315,7 @@ ClK_initialize ClK_initialize(
         .SEG_DATA(SEG_DATA)
     );
     
+    assign led_8_s = led_8 | game_end;
     // 추가 로직 및 주석
     // ... (생략)
     
