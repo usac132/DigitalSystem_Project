@@ -21,9 +21,9 @@ module GameManager(
     output led_5,
     output led_6,
     output led_7,
-    output led_8
+    output led_8,
     // output 7-seg 관련 요소들
-    output [7:0] SEG_COM
+    output [7:0] SEG_COM,
     output [7:0] SEG_DATA
     // output [3:0] error_code
 );
