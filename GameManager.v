@@ -9,7 +9,9 @@ module GameManager(
     input botton_7,
     input botton_8,
     input [2:0] KEY_COL,
-    input [3:0] KEY_ROW,
+    output [3:0] KEY_ROW,
+    input dip,
+    input dip_clk,
     /*
     input keypad_1,
     input keypad_2,
@@ -23,28 +25,42 @@ module GameManager(
     output led_5,
     output led_6,
     output led_7,
-    output led_8
-    // output 7-seg 관련 요소들
-    // output [7:0] SEG_COM,
-    // output [7:0] SEG_DATA
+    output led_8,
+    output [7:0] SEG_COM,
+    output [7:0] SEG_DATA
     // output [3:0] error_code
 );
     // 전체 모듈 통합하고 게임의 주축이 되는 모듈.
     // 다른 모듈들을 이용해 이 모듈에서 전체 게임 설계.
-    wire keypad_1, keypad_2, keypad_3, keypad_0, keypad_h;
-    assign keypad_1 = KEY_COL[0] & KEY_ROW[0];
-    assign keypad_2 = KEY_COL[1] & KEY_ROW[0];
-    assign keypad_3 = KEY_COL[2] & KEY_ROW[0];
-    assign keypad_0 = KEY_COL[1] & KEY_ROW[3];
-    assign keypad_h = KEY_COL[2] & KEY_ROW[3];
+    
 
     wire clk_1, clk_3;
     ClK_initialize ClK_initialize(
         .clk_in(clk_2),      // 1MHz 입력 클록
-        .rst(keypad_h),
+        .rst(dip_clk),
         .clk_1kHz(clk_1),    // 1kHz 출력 클록
         .clk_10Hz(clk_3)     // 10Hz 출력 클록
         );
+    wire [4:0] key_inp;
+    keypad keypad (clk_1, dip, KEY_COL, KEY_ROW, key_inp);
+    
+    reg keypad_1, keypad_2, keypad_3, keypad_0;
+    wire non_zero = keypad_1 | keypad_2 | keypad_3 | keypad_0;
+    always @(posedge clk_1 or posedge dip) begin
+        if (dip | (non_zero & (key_inp == 4'd12))) begin
+            keypad_1 <= 0;
+            keypad_2 <= 0;
+            keypad_3 <= 0;
+            keypad_0 <= 0;
+        end else begin
+            case(key_inp)
+                4'd1:keypad_1<=1;
+                4'd2:keypad_2<=1;
+                4'd3:keypad_3<=1;
+                4'd0:keypad_0<=1;
+            endcase
+        end
+    end
 
     // level_select 모듈로 시작 -> 유효값이 입력 되었을 때 다른 모듈에 enable 신호 넣어줌
     wire [2:0] level;
@@ -54,7 +70,7 @@ module GameManager(
         .keypad_1(keypad_1),
         .keypad_2(keypad_2),
         .keypad_3(keypad_3),
-        .keypad_0(keypad_0),
+        .keypad_0(dip),
         // .error_code(error_code),
         .level(level),
         .rst(rst),
@@ -76,9 +92,9 @@ module GameManager(
     assign game_end = (round_count > 9);
 
     reg lpge;
-    always @(posedge keypad_0) lpge <= 1'b1;
+    always @(posedge dip) lpge <= 1'b1;
     reg lrst;   // loop를 초기화할 신호
-    always @(posedge keypad_0) lrst <= 1'b1;
+    always @(posedge dip) lrst <= 1'b1;
 
     wire update_pattern;
     wire input_trim_end;
@@ -93,7 +109,7 @@ module GameManager(
         .clk_2(clk_2),
         .rst(rst & lrst),
         .enable(level_select_end & lpge), 
-        .keypad_0(keypad_0),
+        .keypad_0(dip),
         .lv_sel(lv_sel | update_pattern),
         .pattern_1(pattern_1),
         .pattern_2(pattern_2),
@@ -310,15 +326,15 @@ module GameManager(
         if (!rst) score <= 0;
         else score <= 10 * answer_count;
     end
-/*
+
     print_score_7seg print_score_7seg(
-        .score(score),  
-        .clk(clk_1),          
-        .nRST(rst),           
-        .SEG_COM(SEG_COM),
+        .CLK(clk_1),
+	    .a(score),
+	    .N_Reset(rst),
+	    .SEG_COM(SEG_COM), 
         .SEG_DATA(SEG_DATA)
-);
-*/
+    );
+
     // n개의 값을 입력해야 한다고 할 때 n개의 값을 입력 했을 때 한 round가 끝나도록 설계.
     // round와 round 사이에 term을 주는 것도 구현 필요.
     // 혹시나 여유가 된다면 한 라운드에서 시간이 매우 길어지면 round가 끝나도록 설계하는 것도 구현.

@@ -25,6 +25,9 @@ module tb_GameManager;
     wire led_7;
     wire led_8;
 
+    wire [7:0] SEG_COM;
+    wire [7:0] SEG_DATA;
+
     // GameManager 인스턴스화
     GameManager uut (
         .clk_2(clk_2),
@@ -45,7 +48,9 @@ module tb_GameManager;
         .led_5(led_5),
         .led_6(led_6),
         .led_7(led_7),
-        .led_8(led_8)
+        .led_8(led_8),
+        .SEG_COM(SEG_COM),
+        .SEG_DATA(SEG_DATA)
     );
 /*
     // clk_1: 적당히 빠른 속도 (예: 10ns 주기)
