@@ -8,9 +8,12 @@ module GameManager(
     input botton_6,
     input botton_7,
     input botton_8,
-    input [2:0] KEY_COL,
-    output [3:0] KEY_ROW,
-    input dip,
+    // input [2:0] KEY_COL,
+    // output [3:0] KEY_ROW,
+    input dip1,
+    input dip2,
+    input dip3,
+    input dip_rst,
     input dip_clk,
     /*
     input keypad_1,
@@ -41,15 +44,35 @@ module GameManager(
         .clk_1kHz(clk_1),    // 1kHz 출력 클록
         .clk_10Hz(clk_3)     // 10Hz 출력 클록
         );
-    wire [3:0] key_inp;
-    keypad keypad (clk_1, dip, KEY_COL, KEY_ROW, key_inp);
+    // wire [3:0] key_inp;
+    // keypad keypad (clk_1, dip, KEY_COL, KEY_ROW, key_inp);
     
-    wire keypad_1, keypad_2, keypad_3, keypad_0;
-    
+    assign keypad_1 = dip1;
+    assign keypad_2 = dip2;
+    assign keypad_3 = dip3;
+    /*
+    always @(posedge clk_2 or posedge dip) begin
+        if (dip) begin
+            keypad_0 <= 0;
+            keypad_1 <= 0;
+            keypad_2 <= 0;
+            keypad_3 <= 0;
+        end else begin
+            case (key_inp)
+                4'd0: keypad_0 <= 1;
+                4'd1: keypad_1 <= 1;
+                4'd2: keypad_2 <= 1;
+                4'd3: keypad_3 <= 1;
+            endcase
+        end
+    end
+    */
+    /*
     assign keypad_0 = (key_inp == 4'd0);
     assign keypad_1 = (key_inp == 4'd1);
     assign keypad_2 = (key_inp == 4'd2);
     assign keypad_3 = (key_inp == 4'd3);
+    */
     // level_select 모듈로 시작 -> 유효값이 입력 되었을 때 다른 모듈에 enable 신호 넣어줌
     wire [2:0] level;
     wire rst, level_select_end;
@@ -58,7 +81,7 @@ module GameManager(
         .keypad_1(keypad_1),
         .keypad_2(keypad_2),
         .keypad_3(keypad_3),
-        .keypad_0(dip),
+        .keypad_0(dip_rst),
         // .error_code(error_code),
         .level(level),
         .rst(rst),
@@ -80,9 +103,9 @@ module GameManager(
     assign game_end = (round_count > 9);
 
     reg lpge;
-    always @(posedge dip) lpge <= 1'b1;
+    always @(posedge dip_rst) lpge <= 1'b1;
     reg lrst;   // loop를 초기화할 신호
-    always @(posedge dip) lrst <= 1'b1;
+    always @(posedge dip_rst) lrst <= 1'b1;
 
     wire update_pattern;
     wire input_trim_end;
@@ -97,7 +120,7 @@ module GameManager(
         .clk_2(clk_2),
         .rst(rst & lrst),
         .enable(level_select_end & lpge), 
-        .keypad_0(dip),
+        .keypad_0(dip_rst),
         .lv_sel(lv_sel | update_pattern),
         .pattern_1(pattern_1),
         .pattern_2(pattern_2),
