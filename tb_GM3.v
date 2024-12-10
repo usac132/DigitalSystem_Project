@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module tb_GameManager;
+module tb_GameManager_3;
 
     // 입력 신호 선언
     reg clk_2;
@@ -12,9 +12,11 @@ module tb_GameManager;
     reg botton_6;
     reg botton_7;
     reg botton_8;
-    reg [2:0] KEY_COL;
-    reg [3:0] KEY_ROW;
-
+    reg dip1;
+    reg dip2;
+    reg dip3;
+    reg dip_clk;
+    reg dip_rst;
     // 출력 신호 선언
     wire led_1;
     wire led_2;
@@ -24,7 +26,6 @@ module tb_GameManager;
     wire led_6;
     wire led_7;
     wire led_8;
-
     wire [7:0] SEG_COM;
     wire [7:0] SEG_DATA;
 
@@ -39,8 +40,11 @@ module tb_GameManager;
         .botton_6(botton_6),
         .botton_7(botton_7),
         .botton_8(botton_8),
-        .KEY_COL(KEY_COL),
-        .KEY_ROW(KEY_ROW),
+        .dip1(dip1),
+        .dip2(dip2),
+        .dip3(dip3),
+        .dip_rst(dip_rst),
+        .dip_clk(dip_clk),
         .led_1(led_1),
         .led_2(led_2),
         .led_3(led_3),
@@ -112,36 +116,32 @@ module tb_GameManager;
         botton_6 = 0;
         botton_7 = 0;
         botton_8 = 0;
-        KEY_COL = 0;
-        KEY_ROW = 0;
+        dip_clk = 0;
+        dip_rst = 0;
+        dip1 = 0;
+        dip2 = 0;
+        dip3 = 0;
+        // 시뮬레이션 초기 대기
+        #1000;
 
         // 시뮬레이션 초기 대기
         #10000;
-
-        // 시뮬레이션 초기 대기
-        #10000;
-        KEY_COL[2] = 1;
-        KEY_ROW[3] = 1;
+        dip_clk = 1;
         #50000;
-        KEY_COL[2] = 0;
-        KEY_ROW[3] = 0;
+        dip_clk = 0;
 
         #500000;
         // 게임 시작: keypad_0 누름
-        KEY_COL[1] = 1;
-        KEY_ROW[3] = 1;
+        dip_rst = 1;
         #50000;
-        KEY_COL[1] = 0;
-        KEY_ROW[3] = 0;
+        dip_rst = 0;
 
         #500000;
         
         // 난이도 선택: keypad_2 누름
-        KEY_COL[1] = 1;
-        KEY_ROW[0] = 1;
+        dip2 = 1;
         #50000;
-        KEY_COL[1] = 0;
-        KEY_ROW[0] = 0;
+        dip2 = 0;
         #500000;
 
         // 10번 반복

@@ -22,7 +22,7 @@ module random_number(
         .count(count)
     );
     always @(posedge inp) begin // 레벨을 입력할 때 측정되는 counter 값으로 랜덤한 값 추출
-        random_num <= count;
+        random_num <= count ^ (count << 7) ^ (count >> 5);
     end
 endmodule
 

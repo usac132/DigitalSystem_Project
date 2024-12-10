@@ -35,22 +35,22 @@ module pattern_generator (
     always @(posedge enable or negedge rst) begin
         if (!rst) pattern_gen_end <= 0;
         else if (enable) begin  // random number에서 1칸씩 옮기며 5비트 값 추출 후 mod 8 시행해서 패턴 생성
-            pattern_1 <= random_num[4:0] % 8;
-            pattern_2 <= random_num[5:1] % 8;
-            pattern_3 <= random_num[6:2] % 8; 
-            pattern_4 <= random_num[7:3] % 8;
-            pattern_5 <= random_num[8:4] % 8;
-            pattern_6 <= random_num[9:5] % 8;
-            pattern_7 <= random_num[10:6] % 8; 
-            pattern_8 <= random_num[11:7] % 8;
-            pattern_9 <= random_num[12:8] % 8;
-            pattern_10 <= random_num[13:9] % 8;
-            pattern_11 <= random_num[14:10] % 8; 
-            pattern_12 <= random_num[15:11] % 8;
-            pattern_13 <= random_num[16:12] % 8;
-            pattern_14 <= random_num[17:13] % 8;
-            pattern_15 <= random_num[18:14] % 8; 
-            pattern_16 <= random_num[19:15] % 8;
+            pattern_1 <= random_num[2:0] ^ random_num[6:4];
+            pattern_2 <= random_num[3:1] ^ random_num[7:5];
+            pattern_3 <= random_num[4:2] ^ random_num[8:6]; 
+            pattern_4 <= random_num[5:3] ^ random_num[9:7];
+            pattern_5 <= random_num[6:4] ^ random_num[10:8];
+            pattern_6 <= random_num[7:5] ^ random_num[11:9];
+            pattern_7 <= random_num[8:6] ^ random_num[12:10]; 
+            pattern_8 <= random_num[9:7] ^ random_num[13:11];
+            pattern_9 <= random_num[10:8] ^ random_num[14:12];
+            pattern_10 <= random_num[11:9] ^ random_num[15:13];
+            pattern_11 <= random_num[12:10] ^ random_num[16:14]; 
+            pattern_12 <= random_num[13:11] ^ random_num[17:15];
+            pattern_13 <= random_num[14:12] ^ random_num[18:16];
+            pattern_14 <= random_num[15:13] ^ random_num[19:17];
+            pattern_15 <= random_num[16:14] ^ {random_num[0], random_num[19:18]}; 
+            pattern_16 <= random_num[17:15] ^ {random_num[1:0], random_num[19]};
             pattern_gen_end <= 1;
         end
     end
