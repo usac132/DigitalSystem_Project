@@ -86,29 +86,46 @@ module keypad_test(
     output [3:0] KEY_ROW,
     input dip,  //rst
     input clk,
-    output [4:0] key_inp,
+    output [3:0] key_inp,
     output keypad_1_w,
     output keypad_2_w,
     output keypad_3_w,
     output keypad_0_w
 );
 
-    keypad keypad (clk_1, dip, KEY_COL, KEY_ROW, key_inp);
+    keypad keypad (clk, dip, KEY_COL, KEY_ROW, key_inp);
 
     reg keypad_1, keypad_2, keypad_3, keypad_0;
-    wire non_zero = keypad_1 | keypad_2 | keypad_3 | keypad_0;
-    always @(posedge clk_1 or posedge dip) begin
+    // wire non_zero = keypad_1 | keypad_2 | keypad_3 | keypad_0;
+    /*
+    always @(posedge clk or posedge dip) begin
         if (dip | (non_zero & (key_inp == 4'd12))) begin
-            keypad_1 <= 0;
-            keypad_2 <= 0;
-            keypad_3 <= 0;
-            keypad_0 <= 0;
+            keypad_1 = 0;
+            keypad_2 = 0;
+            keypad_3 = 0;
+            keypad_0 = 0;
         end else begin
             case(key_inp)
-                4'd1:keypad_1<=1;
-                4'd2:keypad_2<=1;
-                4'd3:keypad_3<=1;
-                4'd0:keypad_0<=1;
+                4'd1:keypad_1=1;
+                4'd2:keypad_2=1;
+                4'd3:keypad_3=1;
+                4'd0:keypad_0=1;
+            endcase
+        end
+    end
+*/
+    always @(posedge clk or posedge dip) begin
+        if (dip) begin
+            keypad_1 = 0;
+            keypad_2 = 0;
+            keypad_3 = 0;
+            keypad_0 = 0;
+        end else begin
+            case(key_inp)
+                4'd1:keypad_1=1;
+                4'd2:keypad_2=1;
+                4'd3:keypad_3=1;
+                4'd0:keypad_0=1;
             endcase
         end
     end
@@ -117,5 +134,5 @@ module keypad_test(
     assign keypad_2_w = keypad_2;
     assign keypad_3_w = keypad_3;
     assign keypad_0_w = keypad_0;
-    
+
 endmodule

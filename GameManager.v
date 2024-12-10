@@ -41,27 +41,15 @@ module GameManager(
         .clk_1kHz(clk_1),    // 1kHz 출력 클록
         .clk_10Hz(clk_3)     // 10Hz 출력 클록
         );
-    wire [4:0] key_inp;
+    wire [3:0] key_inp;
     keypad keypad (clk_1, dip, KEY_COL, KEY_ROW, key_inp);
     
-    reg keypad_1, keypad_2, keypad_3, keypad_0;
-    wire non_zero = keypad_1 | keypad_2 | keypad_3 | keypad_0;
-    always @(posedge clk_1 or posedge dip) begin
-        if (dip | (non_zero & (key_inp == 4'd12))) begin
-            keypad_1 <= 0;
-            keypad_2 <= 0;
-            keypad_3 <= 0;
-            keypad_0 <= 0;
-        end else begin
-            case(key_inp)
-                4'd1:keypad_1<=1;
-                4'd2:keypad_2<=1;
-                4'd3:keypad_3<=1;
-                4'd0:keypad_0<=1;
-            endcase
-        end
-    end
-
+    wire keypad_1, keypad_2, keypad_3, keypad_0;
+    
+    assign keypad_0 = (key_inp == 4'd0);
+    assign keypad_1 = (key_inp == 4'd1);
+    assign keypad_2 = (key_inp == 4'd2);
+    assign keypad_3 = (key_inp == 4'd3);
     // level_select 모듈로 시작 -> 유효값이 입력 되었을 때 다른 모듈에 enable 신호 넣어줌
     wire [2:0] level;
     wire rst, level_select_end;
