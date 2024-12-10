@@ -10,11 +10,11 @@ module GameManager(
     input botton_8,
     // input [2:0] KEY_COL,
     // output [3:0] KEY_ROW,
-    input dip1,
-    input dip2,
-    input dip3,
-    input dip_rst,
-    input dip_clk,
+    // input dip1,
+    // input dip2,
+    // input dip3,
+    // input dip_rst,
+    // input dip_clk,
     /*
     input keypad_1,
     input keypad_2,
@@ -35,21 +35,20 @@ module GameManager(
 );
     // 전체 모듈 통합하고 게임의 주축이 되는 모듈.
     // 다른 모듈들을 이용해 이 모듈에서 전체 게임 설계.
-    
 
     wire clk_1, clk_3;
     ClK_initialize ClK_initialize(
         .clk_in(clk_2),      // 1MHz 입력 클록
-        .rst(dip_clk),
+        .rst(botton_1 & botton_4 & botton_8),
         .clk_1kHz(clk_1),    // 1kHz 출력 클록
         .clk_10Hz(clk_3)     // 10Hz 출력 클록
         );
     // wire [3:0] key_inp;
     // keypad keypad (clk_1, dip, KEY_COL, KEY_ROW, key_inp);
     
-    assign keypad_1 = dip1;
-    assign keypad_2 = dip2;
-    assign keypad_3 = dip3;
+    // assign keypad_1 = dip1;
+    // assign keypad_2 = dip2;
+    // assign keypad_3 = dip3;
     /*
     always @(posedge clk_2 or posedge dip) begin
         if (dip) begin
@@ -73,15 +72,16 @@ module GameManager(
     assign keypad_2 = (key_inp == 4'd2);
     assign keypad_3 = (key_inp == 4'd3);
     */
+
     // level_select 모듈로 시작 -> 유효값이 입력 되었을 때 다른 모듈에 enable 신호 넣어줌
     wire [2:0] level;
     wire rst, level_select_end;
     level_select level_select(
         .clk(clk_1),
-        .keypad_1(keypad_1),
-        .keypad_2(keypad_2),
-        .keypad_3(keypad_3),
-        .keypad_0(dip_rst),
+        .keypad_1(botton_3 & botton_4),
+        .keypad_2(botton_5 & botton_6),
+        .keypad_3(botton_7 & botton_8),
+        .keypad_0(botton_1 & botton_2),
         // .error_code(error_code),
         .level(level),
         .rst(rst),
@@ -103,15 +103,15 @@ module GameManager(
     assign game_end = (round_count > 9);
 
     reg lpge;
-    always @(posedge dip_rst) lpge <= 1'b1;
+    always @(posedge botton_1 & botton_2) lpge <= 1'b1;
     reg lrst;   // loop를 초기화할 신호
-    always @(posedge dip_rst) lrst <= 1'b1;
-
+    always @(posedge botton_1 & botton_2) lrst <= 1'b1;
+// keypad
     wire update_pattern;
     wire input_trim_end;
     assign update_pattern = input_trim_end;
     wire lv_sel;
-    assign lv_sel = keypad_1 | keypad_2 | keypad_3;
+    assign lv_sel = (botton_3 & botton_4) | (botton_5 & botton_6) | (botton_7 & botton_8);         //바꿈 botton
     wire [2:0] pattern_1, pattern_2, pattern_3, pattern_4, pattern_5, pattern_6, pattern_7, pattern_8;
     wire [2:0] pattern_9, pattern_10, pattern_11, pattern_12, pattern_13, pattern_14, pattern_15, pattern_16;
     wire pattern_gen_end;
@@ -120,7 +120,7 @@ module GameManager(
         .clk_2(clk_2),
         .rst(rst & lrst),
         .enable(level_select_end & lpge), 
-        .keypad_0(dip_rst),
+        .keypad_0(botton_1 & botton_2),
         .lv_sel(lv_sel | update_pattern),
         .pattern_1(pattern_1),
         .pattern_2(pattern_2),

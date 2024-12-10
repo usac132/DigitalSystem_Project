@@ -6,10 +6,10 @@ module ClK_initialize(
     );
 
     // 1kHz 클록을 위한 카운터 (0 ~ 499)
-    reg [8:0] count1 = 0; // 9비트 카운터
+    reg [8:0] count1; // 9비트 카운터
 
     // 10Hz 클록을 위한 카운터 (0 ~ 49999)
-    reg [15:0] count2 = 0; // 16비트 카운터
+    reg [15:0] count2; // 16비트 카운터
 
     // 1kHz 클록 생성
     always @(posedge clk_in or posedge rst) begin
