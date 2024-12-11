@@ -106,6 +106,9 @@ module GameManager(
     reg [4:0] round_count;
     reg [3:0] answer_count;
 
+    wire game_end;
+    assign game_end = (round_count > 9);
+
 
     reg lpge;
     reg lrst;   // loop를 초기화할 신호
@@ -150,7 +153,7 @@ module GameManager(
         .clk_1(clk_1),
         .clk_3(clk_3),
         .rst(rst & lrst),
-        .enable(pattern_gen_end),
+        .enable(pattern_gen_end & (!game_end)),
         .level(level),
         .pattern_1(pattern_1),
         .pattern_2(pattern_2),
@@ -258,8 +261,7 @@ module GameManager(
         end
     end
 
-    wire game_end;
-    assign game_end = (round_count > 9);
+    
 /*
     reg [1:0] delay;
     always @(negedge rst or posedge input_trim_end) begin   // 초기화 + loop 끝났을 때 초기화
@@ -449,15 +451,15 @@ end
 
 
     reg [6:0] score;
-    always @(posedge game_end or negedge rst) begin
-        if (!rst) score <= 0;
+    always @(posedge clk_1 or posedge dip_rst) begin
+        if (dip_rst) score <= 0;
         else score <= 10 * answer_count;
     end
 
     print_score_7seg print_score_7seg(
         .CLK(clk_1),
 	    .a(score),
-	    .N_Reset(rst),
+	    .N_Reset(dip_rst),
 	    .SEG_COM(SEG_COM), 
         .SEG_DATA(SEG_DATA)
     );
