@@ -14,6 +14,10 @@ module level_select(
     always @(posedge keypad_2) k2 <= 1'b1;
     always @(posedge keypad_3) k3 <= 1'b1;
 
+    wire verify, not_multi_inp, inp_on_signal;
+    assign inp_on_signal = (k1 | k2 | k3);
+    assign not_multi_inp = (k1 + k2 + k3 < 2);
+    assign verify = inp_on_signal & not_multi_inp & (~end_signal);
     reg hold_rst = 1'b0;   // rst 신호가 너무 짧아지는 것을 방지하기 위한 신호 
     // rst 신호 생성 (1.xx * clk주기 길이만큼 rst 신호 출력)
     always @(posedge clk or posedge keypad_0) begin
@@ -27,22 +31,17 @@ module level_select(
             hold_rst <= 1'b0;
         end else begin
             rst <= 1'b1;
-        end
-    end
 
-    wire verify, not_multi_inp, inp_on_signal;
-    assign inp_on_signal = (k1 | k2 | k3);
-    assign not_multi_inp = (k1 + k2 + k3 < 2);
-    assign verify = inp_on_signal & not_multi_inp & (~end_signal);
-    // level 변수에 level 정보 저장
-    always @(posedge clk) begin
-        if (verify) begin
-            level <= {k3, k2, k1};
-            end_signal <= 1'b1;
+            if (verify) begin
+                level <= {k3, k2, k1};
+                end_signal <= 1'b1;
+            end
+
+            // 키 입력 초기화
+            k3 <= 1'b0;
+            k2 <= 1'b0;
+            k1 <= 1'b0;
         end
-        k3 <= 1'b0;
-        k2 <= 1'b0;
-        k1 <= 1'b0;
     end
 
 endmodule

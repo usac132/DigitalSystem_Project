@@ -47,29 +47,11 @@ module print_pattern(
     wire clk;
     assign clk = ((clk_x8 & level[2]) | (clk_x16 & level[1]) | (clk_x32 & level[0])) & enable;
     reg [2:0] pattern [15:0];
-    always @(posedge clk_1) begin
-        if (enable) begin
-            pattern[0] <= pattern_1;
-            pattern[1] <= pattern_2;
-            pattern[2] <= pattern_3;
-            pattern[3] <= pattern_4;
-            pattern[4] <= pattern_5;
-            pattern[5] <= pattern_6;
-            pattern[6] <= pattern_7;
-            pattern[7] <= pattern_8;
-            pattern[8] <= pattern_9;
-            pattern[9] <= pattern_10;
-            pattern[10] <= pattern_11;
-            pattern[11] <= pattern_12;
-            pattern[12] <= pattern_13;
-            pattern[13] <= pattern_14;
-            pattern[14] <= pattern_15;
-            pattern[15] <= pattern_16;
-        end
-    end
+    
     reg pulse;
     reg [4:0] i;
     reg [1:0] delay_enable;
+    
     always @(posedge clk or negedge rst) begin
         if (!rst) begin // 초기화
             pulse <= 0;
@@ -134,6 +116,41 @@ module print_pattern(
             led_7 <= 0;
             led_8 <= 0;
             print_pattern_end <= 1;
-        end else if ((delay_enable != 2'b11) & enable) delay_enable <= delay_enable + 1;
+        end else if ((delay_enable != 2'b11) & enable) begin
+            delay_enable <= delay_enable + 1;
+            pattern[0] <= pattern_1;
+            pattern[1] <= pattern_2;
+            pattern[2] <= pattern_3;
+            pattern[3] <= pattern_4;
+            pattern[4] <= pattern_5;
+            pattern[5] <= pattern_6;
+            pattern[6] <= pattern_7;
+            pattern[7] <= pattern_8;
+            pattern[8] <= pattern_9;
+            pattern[9] <= pattern_10;
+            pattern[10] <= pattern_11;
+            pattern[11] <= pattern_12;
+            pattern[12] <= pattern_13;
+            pattern[13] <= pattern_14;
+            pattern[14] <= pattern_15;
+            pattern[15] <= pattern_16;
+            led_1 <= led_1;
+            led_2 <= led_2;
+            led_3 <= led_3;
+            led_4 <= led_4;
+            led_5 <= led_5;
+            led_6 <= led_6;
+            led_7 <= led_7;
+            led_8 <= led_8;
+        end else begin
+            led_1 <= led_1;
+            led_2 <= led_2;
+            led_3 <= led_3;
+            led_4 <= led_4;
+            led_5 <= led_5;
+            led_6 <= led_6;
+            led_7 <= led_7;
+            led_8 <= led_8;
+        end
     end
 endmodule

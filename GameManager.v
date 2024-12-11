@@ -47,6 +47,7 @@ module GameManager(
     // wire [3:0] key_inp;
     // keypad keypad (clk_1, dip, KEY_COL, KEY_ROW, key_inp);
     
+    wire keypad_1, keypad_2, keypad_3;
     assign keypad_1 = dip1;
     assign keypad_2 = dip2;
     assign keypad_3 = dip3;
