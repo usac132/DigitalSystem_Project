@@ -37,7 +37,7 @@ module input_trim(
     wire [3:0] max; // level에 따른 최대 입력 개수
     assign max = 3 + 12 * level[2] + 8 * level[1]  + 4 * level[0]; // level은 1,2,3만 있음.
 
-
+/*
     always @(posedge botton_1) b1 <= 1'b1;
     always @(posedge botton_2) b2 <= 1'b1;
     always @(posedge botton_3) b3 <= 1'b1;
@@ -46,6 +46,7 @@ module input_trim(
     always @(posedge botton_6) b6 <= 1'b1;
     always @(posedge botton_7) b7 <= 1'b1;
     always @(posedge botton_8) b8 <= 1'b1;
+*/
 
     // 유효성 검사
     // 2개 이상의 값에 대해서는 입력되지 않음.
@@ -54,7 +55,8 @@ module input_trim(
     assign inp_on_signal = b1|b2|b3|b4|b5|b6|b7|b8;
     assign not_multi_inp = (b1+b2+b3+b4+b5+b6+b7+b8 < 2);
     assign verify = enable & inp_on_signal & not_multi_inp & (~end_signal);
-
+    wire inp_bt ;
+    assign inp_bt = botton_1 | botton_2 | botton_3 | botton_4 | botton_5 | botton_6 | botton_7 | botton_8;
     // encoder
     reg [2:0] tmp_trim;
     reg load;
@@ -89,6 +91,17 @@ module input_trim(
             i <= 5'b00000;
             end_signal <= 1'b0;
             // error_code <= 4'b0000;
+        
+        end else if (inp_bt) begin
+            if (botton_1) b1 <= 1'b1;
+            if (botton_2) b2 <= 1'b1;
+            if (botton_3) b3 <= 1'b1;
+            if (botton_4) b4 <= 1'b1;
+            if (botton_5) b5 <= 1'b1;
+            if (botton_6) b6 <= 1'b1;
+            if (botton_7) b7 <= 1'b1;
+            if (botton_8) b8 <= 1'b1;
+
         end else begin
             if (verify) begin   //encoder
                 case({b1, b2, b3, b4, b5, b6, b7, b8})
