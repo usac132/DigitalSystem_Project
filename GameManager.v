@@ -91,22 +91,25 @@ module GameManager(
     // level 1: 001, level 2: 010, level 3: 100, not_valid: 000,  
 
     reg [15:0] pattern_lv_enable;
-    always @(negedge rst) pattern_lv_enable <=16'b0000000000000000;
+
+    wire pattern_gen_end;
+    always @(posedge clk_1 or negedge rst) begin
+        if (!rst) pattern_lv_enable <=16'b0000000000000000;
+        else if (pattern_gen_end)
+            case (level)
+                3'b001: pattern_lv_enable <= 16'b0000000011111111;
+                3'b010: pattern_lv_enable <= 16'b0000111111111111;
+                3'b100: pattern_lv_enable <= 16'b1111111111111111;
+            endcase
+    end
 
     reg [4:0] round_count;
     reg [3:0] answer_count;
-    always @(negedge rst) begin // round rst에 영향X only 전체 rst에서만 영향 받음
-        round_count <= 5'b00000;
-        answer_count <= 4'b0000;
-    end
 
-    wire game_end;
-    assign game_end = (round_count > 9);
 
     reg lpge;
-    always @(posedge dip_rst) lpge <= 1'b1;
     reg lrst;   // loop를 초기화할 신호
-    always @(posedge dip_rst) lrst <= 1'b1;
+
 
     wire update_pattern;
     wire input_trim_end;
@@ -115,7 +118,7 @@ module GameManager(
     assign lv_sel = keypad_1 | keypad_2 | keypad_3;
     wire [2:0] pattern_1, pattern_2, pattern_3, pattern_4, pattern_5, pattern_6, pattern_7, pattern_8;
     wire [2:0] pattern_9, pattern_10, pattern_11, pattern_12, pattern_13, pattern_14, pattern_15, pattern_16;
-    wire pattern_gen_end;
+
     pattern_generator pattern_generator(
         .clk_1(clk_1),
         .clk_2(clk_2),
@@ -229,19 +232,15 @@ module GameManager(
                         ((pattern_16 & {3{pattern_lv_enable[15]}}) == trimmed_inp_16);
 
 // 여기서부터 수정 시작, hotfix_1에서 lrst부분 수정 후 다시 돌려보기 
-    always @(posedge clk_1) begin
-        if (pattern_gen_end)
-            case (level)
-                3'b001: pattern_lv_enable <= 16'b0000000011111111;
-                3'b010: pattern_lv_enable <= 16'b0000111111111111;
-                3'b100: pattern_lv_enable <= 16'b1111111111111111;
-            endcase
-    end
+    
 
     reg [1:0] delay;
     always @(posedge clk_1 or negedge rst or negedge lrst) begin    // trim끝났을 때 round 세기, delay:2
-        if ((!rst)|(!lrst))
+        if (!rst) begin
+            round_count <= 5'b00000;
+            answer_count <= 4'b0000;
             delay <= 2'b00;
+        end else if (!lrst) delay <= 2'b00;
         else if (input_trim_end) begin
             if (delay == 2'b10) begin
                 round_count <= round_count + 1;
@@ -252,6 +251,15 @@ module GameManager(
                 delay <= delay + 1;
         end
     end
+
+        always @(negedge rst) begin // round rst에 영향X only 전체 rst에서만 영향 받음
+        if (!rst) begin
+        
+        end
+    end
+
+    wire game_end;
+    assign game_end = (round_count > 9);
 /*
     reg [1:0] delay;
     always @(negedge rst or posedge input_trim_end) begin   // 초기화 + loop 끝났을 때 초기화
@@ -259,8 +267,13 @@ module GameManager(
     end
 */
     reg [1:0] delay_pge;            // lrst 이후 작동, 계속 1이다가 lrst 신호 들어오고 잠시뒤에 잠깐 0됨.
-    always @(posedge clk_1 or negedge rst or negedge lrst) begin
-        if (!rst)
+    
+    always @(posedge clk_1 or negedge rst or negedge lrst or posedge dip_rst) begin
+        if (dip_rst) begin
+            lrst <= 1'b1;
+            lpge <= 1'b1;
+        end
+        else if (!rst)
             delay_pge <= 2'b11;
         else if (!lrst)
             delay_pge <= 2'b00;

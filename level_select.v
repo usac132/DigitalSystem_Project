@@ -10,9 +10,11 @@ module level_select(
     output reg end_signal
 );
     reg k1, k2, k3;
-    always @(posedge keypad_1) k1 <= 1'b1;
-    always @(posedge keypad_2) k2 <= 1'b1;
-    always @(posedge keypad_3) k3 <= 1'b1;
+    // always @(posedge keypad_1) k1 <= 1'b1;
+    // always @(posedge keypad_2) k2 <= 1'b1;
+    // always @(posedge keypad_3) k3 <= 1'b1;
+    wire k_on;
+    assign k_on = keypad_1 | keypad_2 | keypad_3;
 
     wire verify, not_multi_inp, inp_on_signal;
     assign inp_on_signal = (k1 | k2 | k3);
@@ -26,6 +28,10 @@ module level_select(
             hold_rst <= 1'b1;
             end_signal <= 1'b0;
             level <= 3'b000;
+        end else if (k_on) begin
+            if (keypad_1) k1 <= 1'b1;
+            if (keypad_2) k2 <= 1'b1;
+            if (keypad_3) k3 <= 1'b1;
         end else if (hold_rst) begin
             rst <= 1'b0;
             hold_rst <= 1'b0;
