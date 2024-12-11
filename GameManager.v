@@ -266,8 +266,109 @@ module GameManager(
         delay <= 2'b00;
     end
 */
+
+
+
     reg [1:0] delay_pge;            // lrst 이후 작동, 계속 1이다가 lrst 신호 들어오고 잠시뒤에 잠깐 0됨.
-    
+    reg inp_trim_end_enable;
+    reg [2:0] pre_delay;
+    ///////////////////////////////////////////////
+    ////////////////////////////////////////////////
+    // gpt 방식
+    always @(posedge clk_1 or negedge rst or negedge lrst or posedge dip_rst) begin
+    if (dip_rst) begin
+        // dip_rst가 활성화되면, lrst와 lpge를 초기화
+        lrst <= 1'b1;
+        lpge <= 1'b1;
+        
+        // 기타 신호들도 필요하다면 초기화
+        delay_pge <= 2'b00;
+        inp_trim_end_enable <= 1'b1;
+        pre_delay <= 3'b000;
+    end
+    else if (!rst) begin
+        // rst가 비활성화되면, delay_pge를 설정하고 다른 신호 초기화
+        delay_pge <= 2'b11;
+        inp_trim_end_enable <= 1'b1;
+        pre_delay <= 3'b000;
+    end
+    else if (!lrst) begin
+        // lrst가 비활성화되면, delay_pge를 초기화하고 다른 신호도 초기화
+        delay_pge <= 2'b00;
+        lrst <= 1'b1;
+        inp_trim_end_enable <= 1'b1;
+        pre_delay <= 3'b000;
+    end
+    else begin
+        // delay_pge 및 lpge 제어 로직
+        if (delay_pge == 2'b10) begin
+            lpge <= 1'b0;
+            delay_pge <= delay_pge + 1;
+        end
+        else if (delay_pge != 2'b11) begin
+            delay_pge <= delay_pge + 1;
+        end
+        else if (delay_pge == 2'b11) begin
+            lpge <= 1'b1;
+        end
+
+        // inp_trim_end_enable 및 pre_delay 제어 로직
+        if (input_trim_end & inp_trim_end_enable) begin
+            if (pre_delay[2]) begin
+                lrst <= 1'b0;
+                inp_trim_end_enable <= 1'b0;
+            end
+            else begin
+                pre_delay <= pre_delay + 1;
+            end
+        end
+    end
+end
+///////////////////////
+///////////////////////
+///////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////  
+/*  
+    always @(posedge clk_1 or negedge rst or negedge lrst ) begin
+        
+        
+        else if (!lrst)
+            delay_pge <= 2'b00;
+        else if (delay_pge == 2'b10) begin
+            lpge <= 0;
+            delay_pge <= delay_pge + 1;
+        end
+        else if (delay_pge != 2'b11)
+            delay_pge <= delay_pge + 1;
+        else if (delay_pge == 2'b11)
+            lpge <= 1'b1;
+    end
+
+    // lrst은 다른 always문들과 독립적으로 작동하게 설계
+    reg inp_trim_end_enable;
+    reg [2:0] pre_delay;
+    always @(posedge clk_1 or negedge rst or posedge dip_rst) begin
+        if (dip_rst) begin
+            lrst <= 1'b1;
+            lpge <= 1'b1;
+        end
+        if (!rst) begin
+            inp_trim_end_enable <= 1;
+            pre_delay <= 0;
+            delay_pge <= 2'b11;
+        end else if (input_trim_end & inp_trim_end_enable & pre_delay[2]) begin
+            lrst <= 0;
+            inp_trim_end_enable <= 0;
+        end else if (input_trim_end & inp_trim_end_enable & (!pre_delay[2])) pre_delay <= pre_delay + 1;
+        else if (!lrst) begin
+            lrst <= 1;
+            pre_delay <= 0;
+            inp_trim_end_enable <= 1;
+        end
+    end
+
+////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////
     always @(posedge clk_1 or negedge rst or negedge lrst or posedge dip_rst) begin
         if (dip_rst) begin
             lrst <= 1'b1;
@@ -286,7 +387,7 @@ module GameManager(
         else if (delay_pge == 2'b11)
             lpge <= 1'b1;
     end
-/////////////////////////////////////
+
     // lrst은 다른 always문들과 독립적으로 작동하게 설계
     reg inp_trim_end_enable;
     reg [2:0] pre_delay;
@@ -304,6 +405,7 @@ module GameManager(
             inp_trim_end_enable <= 1;
         end
     end
+    */
 /////////////////////////////////////
  /*
     reg [1:0] delay_pge;    // delay for pattern generate enable
