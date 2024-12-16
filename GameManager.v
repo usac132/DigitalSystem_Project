@@ -8,19 +8,13 @@ module GameManager(
     input botton_6,
     input botton_7,
     input botton_8,
-    // input [2:0] KEY_COL,
-    // output [3:0] KEY_ROW,
+
     input dip1,
     input dip2,
     input dip3,
     input dip_rst,
     input dip_clk,
-    /*
-    input keypad_1,
-    input keypad_2,
-    input keypad_3,
-    input keypad_0,
-    */
+
     output led_1,
     output led_2,
     output led_3,
@@ -44,36 +38,13 @@ module GameManager(
         .clk_1kHz(clk_1),    // 1kHz 출력 클록
         .clk_10Hz(clk_3)     // 10Hz 출력 클록
         );
-    // wire [3:0] key_inp;
-    // keypad keypad (clk_1, dip, KEY_COL, KEY_ROW, key_inp);
+
     
     wire keypad_1, keypad_2, keypad_3;
     assign keypad_1 = dip1;
     assign keypad_2 = dip2;
     assign keypad_3 = dip3;
-    /*
-    always @(posedge clk_2 or posedge dip) begin
-        if (dip) begin
-            keypad_0 <= 0;
-            keypad_1 <= 0;
-            keypad_2 <= 0;
-            keypad_3 <= 0;
-        end else begin
-            case (key_inp)
-                4'd0: keypad_0 <= 1;
-                4'd1: keypad_1 <= 1;
-                4'd2: keypad_2 <= 1;
-                4'd3: keypad_3 <= 1;
-            endcase
-        end
-    end
-    */
-    /*
-    assign keypad_0 = (key_inp == 4'd0);
-    assign keypad_1 = (key_inp == 4'd1);
-    assign keypad_2 = (key_inp == 4'd2);
-    assign keypad_3 = (key_inp == 4'd3);
-    */
+    
     // level_select 모듈로 시작 -> 유효값이 입력 되었을 때 다른 모듈에 enable 신호 넣어줌
     wire [2:0] level;
     wire rst, level_select_end;
@@ -255,28 +226,13 @@ module GameManager(
         end
     end
 
-        always @(negedge rst) begin // round rst에 영향X only 전체 rst에서만 영향 받음
-        if (!rst) begin
-        
-        end
-    end
-
-    
-/*
-    reg [1:0] delay;
-    always @(negedge rst or posedge input_trim_end) begin   // 초기화 + loop 끝났을 때 초기화
-        delay <= 2'b00;
-    end
-*/
-
-
 
     reg [1:0] delay_pge;            // lrst 이후 작동, 계속 1이다가 lrst 신호 들어오고 잠시뒤에 잠깐 0됨.
     reg inp_trim_end_enable;
     reg [2:0] pre_delay;
     ///////////////////////////////////////////////
     ////////////////////////////////////////////////
-    // gpt 방식
+    
     always @(posedge clk_1 or negedge rst or negedge lrst or posedge dip_rst) begin
     if (dip_rst) begin
         // dip_rst가 활성화되면, lrst와 lpge를 초기화
@@ -326,128 +282,7 @@ module GameManager(
         end
     end
 end
-///////////////////////
-///////////////////////
-///////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////  
-/*  
-    always @(posedge clk_1 or negedge rst or negedge lrst ) begin
-        
-        
-        else if (!lrst)
-            delay_pge <= 2'b00;
-        else if (delay_pge == 2'b10) begin
-            lpge <= 0;
-            delay_pge <= delay_pge + 1;
-        end
-        else if (delay_pge != 2'b11)
-            delay_pge <= delay_pge + 1;
-        else if (delay_pge == 2'b11)
-            lpge <= 1'b1;
-    end
 
-    // lrst은 다른 always문들과 독립적으로 작동하게 설계
-    reg inp_trim_end_enable;
-    reg [2:0] pre_delay;
-    always @(posedge clk_1 or negedge rst or posedge dip_rst) begin
-        if (dip_rst) begin
-            lrst <= 1'b1;
-            lpge <= 1'b1;
-        end
-        if (!rst) begin
-            inp_trim_end_enable <= 1;
-            pre_delay <= 0;
-            delay_pge <= 2'b11;
-        end else if (input_trim_end & inp_trim_end_enable & pre_delay[2]) begin
-            lrst <= 0;
-            inp_trim_end_enable <= 0;
-        end else if (input_trim_end & inp_trim_end_enable & (!pre_delay[2])) pre_delay <= pre_delay + 1;
-        else if (!lrst) begin
-            lrst <= 1;
-            pre_delay <= 0;
-            inp_trim_end_enable <= 1;
-        end
-    end
-
-////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////
-    always @(posedge clk_1 or negedge rst or negedge lrst or posedge dip_rst) begin
-        if (dip_rst) begin
-            lrst <= 1'b1;
-            lpge <= 1'b1;
-        end
-        else if (!rst)
-            delay_pge <= 2'b11;
-        else if (!lrst)
-            delay_pge <= 2'b00;
-        else if (delay_pge == 2'b10) begin
-            lpge <= 0;
-            delay_pge <= delay_pge + 1;
-        end
-        else if (delay_pge != 2'b11)
-            delay_pge <= delay_pge + 1;
-        else if (delay_pge == 2'b11)
-            lpge <= 1'b1;
-    end
-
-    // lrst은 다른 always문들과 독립적으로 작동하게 설계
-    reg inp_trim_end_enable;
-    reg [2:0] pre_delay;
-    always @(posedge clk_1 or negedge rst) begin
-        if (!rst) begin
-            inp_trim_end_enable <= 1;
-            pre_delay <= 0;
-        end else if (input_trim_end & inp_trim_end_enable & pre_delay[2]) begin
-            lrst <= 0;
-            inp_trim_end_enable <= 0;
-        end else if (input_trim_end & inp_trim_end_enable & (!pre_delay[2])) pre_delay <= pre_delay + 1;
-        else if (!lrst) begin
-            lrst <= 1;
-            pre_delay <= 0;
-            inp_trim_end_enable <= 1;
-        end
-    end
-    */
-/////////////////////////////////////
- /*
-    reg [1:0] delay_pge;    // delay for pattern generate enable
-    always @(negedge rst or posedge input_trim_end) delay_pge <= 2'b00;
-    always @(posedge lrst) begin
-        lpge <= 0;
-        delay_pge <= 2'b01;
-    end
-    always @(posedge clk_1) begin
-        if ((delay_pge != 2'b00) & (delay_pge != 2'b11) ) delay_pge <= delay_pge + 1;
-        else if (delay_pge == 2'b11) lpge <= 1'b1; // 아래거 복사해서 delay 만듦
-    end
-
-    //  trimmed_input이 값이 업데이트 되게 하기 위해 딜레이를 줌
-    reg [1:0] delay_lrst;
-    always @(negedge rst or posedge input_trim_end) delay_lrst <= 2'b00;
-    always @(posedge clk_1) begin   // 그냥 lrst를 일정시간 0으로 붙잡기 위한 부분
-        if ((delay_lrst != 2'b00) & (delay_lrst != 2'b11) ) delay_lrst <= delay_lrst + 1;
-        else if (delay_lrst == 2'b11) lrst <= 1'b1;     // 딜레이 후 lrst 정상화
-    end
-
-    reg activate_lrst;
-    always @(negedge rst) activate_lrst <= 0;
-
-    always @(posedge clk_1) begin
-        if (activate_lrst & (!game_end)) begin
-            lrst <= 1'b0;
-            activate_lrst <= 1'b0;
-        end
-        if ((delay == 2'b10) & input_trim_end) begin
-            round_count <= round_count + 1;
-            answer_count <= answer_count + round_win;
-            activate_lrst <= 1'b1;
-            delay_lrst <= 2'b01;
-            delay <= delay + 1;
-        end
-        else if ((delay != 2'b11) & input_trim_end) delay <= delay + 1;
-    end
-
-*/
 
 
     reg [6:0] score;
@@ -463,20 +298,5 @@ end
 	    .SEG_COM(SEG_COM), 
         .SEG_DATA(SEG_DATA)
     );
-
-    // n개의 값을 입력해야 한다고 할 때 n개의 값을 입력 했을 때 한 round가 끝나도록 설계.
-    // round와 round 사이에 term을 주는 것도 구현 필요.
-    // 혹시나 여유가 된다면 한 라운드에서 시간이 매우 길어지면 round가 끝나도록 설계하는 것도 구현.
-    // 한 round가 끝나면 score을 업데이트, 패턴 재생성, round_count++, 
-    // round를 count하는 wire를 만들어서 n round가 끝났을 때 score가 뜨고, 게임 종료시키기.
-    // 시간 되면 재시작(rst)도 구현. 어차피 rst는 구현해야되서 이거는 구현까지 오래 걸리진 않을듯함.
-
-
-    // 이건 아직 그냥 아이디어 단계인데 버튼을 눌렀을 때 해당 버튼의 index에 해당하는 led가 켜지게 할까 생각중. 
-    // 이렇게 하면 게임성을 높일 뿐더러 LED가 나오는 중에 값을 입력하는 꼼수를 간접적으로 막을 수도 있지 않을까 싶지만? 
-    // 어차피 이 꼼수는 따로 막을 체계가 필요하긴 할것같음. 이런 디테일한 부분들은 다 만들고 완성도 높일 대 고민해보는 걸로
-    // -> 새로운 모듈 추가함(11/27): 시간 텀을 어떻게 만들어낼건지 아직 고민 필요
-    // + Score를 입력 얼마나 빠르게 했는가 등을 이용해서 책정하는 방식도 가능 but 이건 난이도가 많이 높을듯. 확장가능성으로 남겨두는 것에 의의를..
-    //
 
 endmodule

@@ -37,16 +37,6 @@ module input_trim(
     wire [3:0] max; // level에 따른 최대 입력 개수
     assign max = 3 + 12 * level[2] + 8 * level[1]  + 4 * level[0]; // level은 1,2,3만 있음.
 
-/*
-    always @(posedge botton_1) b1 <= 1'b1;
-    always @(posedge botton_2) b2 <= 1'b1;
-    always @(posedge botton_3) b3 <= 1'b1;
-    always @(posedge botton_4) b4 <= 1'b1;
-    always @(posedge botton_5) b5 <= 1'b1;
-    always @(posedge botton_6) b6 <= 1'b1;
-    always @(posedge botton_7) b7 <= 1'b1;
-    always @(posedge botton_8) b8 <= 1'b1;
-*/
 
     // 유효성 검사
     // 2개 이상의 값에 대해서는 입력되지 않음.
